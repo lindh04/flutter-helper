@@ -1,0 +1,21 @@
+library screenname_lowercase_with_underscores;
+
+/* Imports - */
+import 'package:flutter/material.dart';
+import 'package:ROOTDIR/GlobalWidgets/globalWidgets.dart' as global_widgets;
+/* - Imports */
+
+/* Parts - */
+/* - Parts */
+
+class ScreennameUpperCamelCase extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Screenname Upper Space Separated"),
+      ),
+      body: Container(),
+    );
+  }
+}
