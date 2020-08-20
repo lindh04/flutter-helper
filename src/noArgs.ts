@@ -15,10 +15,31 @@ export async function noArgs() {
         type: "list",
         name: "action",
         message: "What to do...?",
-        choices: ["New page widget", "New app-wide widget", "New Page", "init"],
+        choices: ["New widget for screen", "New app-wide widget", "New Screen", "init"],
       },
     ])
-    .then((answers) => {
-      console.info("Answer:", answers.action);
+    .then(async (answers) => {
+      switch (answers.action) {
+        case "New widget for screen": {
+          break;
+        }
+        case "New app-wide widget": {
+          break;
+        }
+        case "New Screen": {
+          await inquirer.prompt([{
+            type: "input",
+            name: "screenName",
+            message: "Screen Name"
+          }]).then(async (answers) => {
+            await newScreen(answers.screenName)
+          })
+          break;
+        }
+        case "init": {
+          await init()
+          break;
+        }
+      }
     });
 }

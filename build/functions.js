@@ -19,10 +19,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.placeFile = exports.deleteFolder = exports.listFiles = exports.getDirectories = void 0;
+exports.editPubspec = exports.placeFile = exports.deleteFolder = exports.listFiles = exports.getDirectories = void 0;
 const fs = __importStar(require("fs"));
 var inquirer = require("inquirer");
 var Path = require("path");
+var replaceInFile = require("replace-in-file");
 function getDirectories(path) {
     return fs.readdirSync(path).filter(function (file) {
         return fs.statSync(path + "/" + file).isDirectory();
@@ -73,3 +74,18 @@ function placeFile(path, file, replace) {
     }
 }
 exports.placeFile = placeFile;
+function editPubspec({ replace, replaceWith }) {
+    const options = {
+        files: "./pubspec.yaml",
+        from: replace,
+        to: replaceWith,
+    };
+    try {
+        const results = replaceInFile.sync(options);
+        console.log("Replacement results:", results);
+    }
+    catch (error) {
+        console.error("Error occurred:", error);
+    }
+}
+exports.editPubspec = editPubspec;

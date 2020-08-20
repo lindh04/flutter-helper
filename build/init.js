@@ -25,6 +25,7 @@ var inquirer = require("inquirer");
 var Path = require("path");
 const _ = __importStar(require("lodash"));
 const funcs = __importStar(require("./functions"));
+var replaceInFile = require("replace-in-file");
 async function init() {
     if (funcs.listFiles("./").includes("flutter-helper.json")) {
         console.log("Firebase init has already been run");
@@ -33,12 +34,12 @@ async function init() {
     }
     else {
         let packageName = process.cwd().toString().split("\\").slice(-1)[0];
-        funcs.deleteFolder("./lib");
-        fs.mkdirSync("./lib");
-        fs.mkdirSync("./lib/Screens");
-        fs.mkdirSync("./lib/GlobalWidgets");
-        funcs.placeFile("./lib/GlobalWidgets/globalWidgets.dart", "globalWidgets.dart.txt");
-        funcs.placeFile("./lib/lib.dart", "lib.dart.txt");
+        await funcs.deleteFolder("./lib");
+        await fs.mkdirSync("./lib");
+        await fs.mkdirSync("./lib/Screens");
+        await fs.mkdirSync("./lib/GlobalWidgets");
+        await funcs.placeFile("./lib/GlobalWidgets/globalWidgets.dart", "globalWidgets.dart.txt");
+        await funcs.placeFile("./lib/lib.dart", "lib.dart.txt");
         let json = {};
         await inquirer
             .prompt([
@@ -54,6 +55,30 @@ async function init() {
                 "APP NAME": answers.name,
             });
             json["AppName"] = answers.name;
+        });
+        await inquirer
+            .prompt([
+            {
+                type: "checkbox",
+                name: "assets",
+                message: "What assets folders are required?",
+                choices: ["images", "icons", "animations"],
+            },
+        ])
+            .then((answers) => {
+            fs.mkdirSync("./assets");
+            answers.assets.forEach((element) => {
+                fs.mkdirSync(`./assets/${element}`);
+            });
+            let pubscpecAssets = `  assets:\n`;
+            answers.assets.forEach((element) => {
+                pubscpecAssets += `    - assets/${element}\n`;
+            });
+            console.log("\n" + pubscpecAssets);
+            funcs.editPubspec({
+                replace: fs.readFileSync(`${__dirname}/pubspecReplace/assets.txt`, { encoding: "utf-8" }),
+                replaceWith: pubscpecAssets,
+            });
         });
         await inquirer
             .prompt([

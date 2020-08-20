@@ -4,6 +4,7 @@ var inquirer = require("inquirer");
 var Path = require("path");
 import * as _ from "lodash";
 import * as funcs from "./functions";
+var replaceInFile = require("replace-in-file");
 
 export async function init(): Promise<void> {
   if (funcs.listFiles("./").includes("flutter-helper.json")) {
@@ -13,14 +14,14 @@ export async function init(): Promise<void> {
     // TODO - Implement ability to change settings when init is used again
   } else {
     let packageName: string = process.cwd().toString().split("\\").slice(-1)[0];
-    funcs.deleteFolder("./lib");
+    await funcs.deleteFolder("./lib");
 
-    fs.mkdirSync("./lib");
-    fs.mkdirSync("./lib/Screens");
-    fs.mkdirSync("./lib/GlobalWidgets");
-    funcs.placeFile("./lib/GlobalWidgets/globalWidgets.dart", "globalWidgets.dart.txt");
+    await fs.mkdirSync("./lib");
+    await fs.mkdirSync("./lib/Screens");
+    await fs.mkdirSync("./lib/GlobalWidgets");
+    await funcs.placeFile("./lib/GlobalWidgets/globalWidgets.dart", "globalWidgets.dart.txt");
 
-    funcs.placeFile("./lib/lib.dart", "lib.dart.txt");
+    await funcs.placeFile("./lib/lib.dart", "lib.dart.txt");
 
     let json = {};
 
@@ -39,7 +40,31 @@ export async function init(): Promise<void> {
         });
         json["AppName"] = answers.name;
       });
+    await inquirer
+      .prompt([
+        {
+          type: "checkbox",
+          name: "assets",
+          message: "What assets folders are required?",
+          choices: ["images", "icons", "animations"],
+        },
+      ])
+      .then((answers) => {
+        fs.mkdirSync("./assets");
+        answers.assets.forEach((element) => {
+          fs.mkdirSync(`./assets/${element}`);
+        });
+        let pubscpecAssets: string = `  assets:\n`;
+        answers.assets.forEach((element) => {
+          pubscpecAssets += `    - assets/${element}\n`;
+        });
 
+        console.log("\n" + pubscpecAssets);
+        funcs.editPubspec({
+          replace: fs.readFileSync(`${__dirname}/pubspecReplace/assets.txt`, { encoding: "utf-8" }),
+          replaceWith: pubscpecAssets,
+        });
+      });
     await inquirer
       .prompt([
         {

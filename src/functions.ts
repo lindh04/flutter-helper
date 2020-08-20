@@ -3,6 +3,7 @@ import * as fs from "fs";
 var inquirer = require("inquirer");
 var Path = require("path");
 import * as _ from "lodash";
+var replaceInFile = require("replace-in-file");
 
 export function getDirectories(path: string): string[] {
   return fs.readdirSync(path).filter(function (file) {
@@ -51,5 +52,19 @@ export function placeFile(path: string, file: string, replace?: Object): void {
     fs.writeFileSync(path, replaced);
   } else {
     fs.writeFileSync(path, libFile);
+  }
+}
+
+export function editPubspec({ replace, replaceWith }): void {
+  const options = {
+    files: "./pubspec.yaml",
+    from: replace,
+    to: replaceWith,
+  };
+  try {
+    const results = replaceInFile.sync(options);
+    console.log("Replacement results:", results);
+  } catch (error) {
+    console.error("Error occurred:", error);
   }
 }

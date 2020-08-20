@@ -7,12 +7,36 @@ var funcs = require("./functions");
 
 let packageName: string = process.cwd().toString().split("\\").slice(-1)[0];
 
-export function newScreen(screenName: string): void {
+export function newScreen(screenNameOrPath: string): void {
+  let screenName: string = screenNameOrPath;
   let camelCaseScreenName: string = _.camelCase(screenName);
-  let upperCamelCaseScreenName: string =
-    camelCaseScreenName.charAt(0).toUpperCase() + camelCaseScreenName.substring(1);
+  let upperCamelCaseScreenName: string = camelCaseScreenName.charAt(0).toUpperCase() + camelCaseScreenName.substring(1);
+  let screenPath: string = screenNameOrPath
 
-  let screenDir: string = `./lib/Screens/${upperCamelCaseScreenName}`;
+  if (screenNameOrPath.includes("/")) {
+    let screenPathArray: string[] = screenNameOrPath.split("/");
+
+    screenName = screenPathArray[screenPathArray.length - 1];
+
+    camelCaseScreenName = _.camelCase(screenName);
+    upperCamelCaseScreenName = camelCaseScreenName.charAt(0).toUpperCase() + camelCaseScreenName.substring(1);
+
+    screenPath = (screenPathArray.slice(0, screenPathArray.length - 1)).join("/") + "/" + upperCamelCaseScreenName;
+  }
+
+  else if (screenNameOrPath.includes("\\")) {
+    let screenPathArray: string[] = screenNameOrPath.split("\\");
+
+    screenName = screenPathArray[screenPathArray.length - 1];
+
+    camelCaseScreenName = _.camelCase(screenName);
+    upperCamelCaseScreenName = camelCaseScreenName.charAt(0).toUpperCase() + camelCaseScreenName.substring(1);
+
+    screenPath = (screenPathArray.slice(0, screenPathArray.length - 1)).join("/") + "/" + upperCamelCaseScreenName;
+  }
+
+
+  let screenDir: string = `./lib/Screens/${screenPath}`;
   fs.mkdirSync(screenDir);
 
   funcs.placeFile(`${screenDir}/${camelCaseScreenName}.dart`, "screenLib.dart.txt", {
